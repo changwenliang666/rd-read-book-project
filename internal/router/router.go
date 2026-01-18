@@ -1,0 +1,19 @@
+package router
+
+import (
+	"rd-read-book-project/internal/middleware"
+
+	"github.com/gin-gonic/gin"
+)
+
+func InitRouter() *gin.Engine {
+	router := gin.Default()
+	// 接口使用中间件 cors jwt
+	router.Use(middleware.CorsMiddleware())
+
+	InitPingRouter(router) // ping 接口
+	InitUserRouter(router) // user 接口
+
+	router.Run(":3000")
+	return router
+}
