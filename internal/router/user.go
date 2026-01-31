@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"rd-read-book-project/config"
+	"rd-read-book-project/internal/controller"
 	"rd-read-book-project/model"
 	"strconv"
 
@@ -72,132 +73,13 @@ func InitUserRouter(router *gin.Engine) {
 		})
 
 		//根据用户id 查询用户
-		userRouter.GET("/getUserInfo", func(ctx *gin.Context) {
-			id := ctx.Query("id")
-			var user = struct {
-				Id       int    `json:"id"`
-				Username string `json:"username"`
-			}{}
-			if err := config.DB.Model(model.User{}).Omit("password").First(&user, id).Error; err != nil {
-				ctx.JSON(http.StatusOK, gin.H{
-					"code": http.StatusInternalServerError,
-					"msg":  "未找到该用户信息",
-				})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"code": 200,
-				"msg":  "success",
-				"data": user,
-			})
-		})
+		userRouter.GET("/getUserInfo", controller.GetUserInfo)
 
 		// 根据用户id 更新用户名
-		userRouter.PATCH("/updateUserName/:id", func(ctx *gin.Context) {
-			var userIdStr = ctx.Param("id")
-			userInputId, err := strconv.Atoi(userIdStr)
-			if err != nil {
-				ctx.JSON(400, gin.H{"code": 400, "message": "ID 无效"})
-				return
-			}
-			var userInputJson = struct {
-				Username string `json:"username" binding:"required"`
-			}{}
-
-			var user model.User
-			if err := ctx.ShouldBindJSON(&userInputJson); err != nil {
-				ctx.JSON(200, gin.H{
-					"code":    400,
-					"message": "参数名称错误",
-				})
-				return
-			}
-
-			if err := config.DB.Model(model.User{}).First(&user, userInputId).Error; err != nil {
-				ctx.JSON(http.StatusOK, gin.H{
-					"code":    400,
-					"message": "该用户不存在",
-				})
-				return
-			}
-
-			user.Username = userInputJson.Username // 更新用户名
-			// 避坑写法：Save 会更新所有字段
-			//if err := config.DB.Model(&user).Save(&user).Error; err != nil {
-			//	ctx.JSON(http.StatusOK, gin.H{
-			//		"code":    500,
-			//		"message": "更新数据失败",
-			//	})
-			//	return
-			//}
-
-			result := config.DB.Model(&model.User{}).Where("id = ?", userInputId).Update("username", userInputJson.Username)
-			if result.Error != nil || result.RowsAffected == 0 {
-				ctx.JSON(http.StatusOK, gin.H{
-					"code":    500,
-					"message": "更新数据失败",
-				})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"code":    200,
-				"message": "更新成功",
-			})
-		})
+		userRouter.PATCH("/updateUserName/:id", controller.UpdateUserName)
 
 		// 根据用户id 更新用户信息
-		userRouter.PATCH("/updateUserInfo/:id", func(ctx *gin.Context) {
-			var userIdStr = ctx.Param("id")
-			userInputId, err := strconv.Atoi(userIdStr)
-			if err != nil {
-				ctx.JSON(400, gin.H{"code": 400, "message": "ID 无效"})
-				return
-			}
-			var userInputJson = struct {
-				Username string `json:"username" binding:"required"`
-				Password string `json:"password" binding:"required"`
-			}{}
-
-			var user model.User
-			if err := ctx.ShouldBindJSON(&userInputJson); err != nil {
-				ctx.JSON(200, gin.H{
-					"code":    400,
-					"message": "参数名称错误",
-				})
-				return
-			}
-
-			if err := config.DB.Model(model.User{}).First(&user, userInputId).Error; err != nil {
-				ctx.JSON(http.StatusOK, gin.H{
-					"code":    400,
-					"message": "该用户不存在",
-				})
-				return
-			}
-
-			user.Username = userInputJson.Username // 更新用户名
-			// 避坑写法：Save 会更新所有字段
-			//if err := config.DB.Model(&user).Save(&user).Error; err != nil {
-			//	ctx.JSON(http.StatusOK, gin.H{
-			//		"code":    500,
-			//		"message": "更新数据失败",
-			//	})
-			//	return
-			//}
-
-			result := config.DB.Model(&model.User{}).Where("id = ?", userInputId).Updates(map[string]interface{}{"username": userInputJson.Username, "password": userInputJson.Password})
-			if result.Error != nil || result.RowsAffected == 0 {
-				ctx.JSON(http.StatusOK, gin.H{
-					"code":    500,
-					"message": "更新数据失败",
-				})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"code":    200,
-				"message": "更新成功",
-			})
-		})
+		userRouter.PATCH("/updateUserInfo/:id", controller.UpdateUserName)
 
 		// 根据用户id 删除用户
 		userRouter.DELETE("/deleteUser/:id", func(ctx *gin.Context) {
