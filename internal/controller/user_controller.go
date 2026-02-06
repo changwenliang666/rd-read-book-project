@@ -8,6 +8,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func Register(ctx *gin.Context) {
+	var user service.UserRegisterJson
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		response.Fail(ctx, "参数格式不正确", nil)
+		return
+	}
+
+	if len(user.Username) < 5 || len(user.Username) > 50 {
+		response.Fail(ctx, "用户名的长度要求在5~50个字符之间", nil)
+		return
+	}
+
+	if len(user.Password) < 8 || len(user.Password) > 100 {
+		response.Fail(ctx, "用户名过长", nil)
+		return
+	}
+
+	err := service.Register(&user)
+
+	if err != nil {
+		response.Fail(ctx, "用户注册失败", nil)
+		return
+	}
+
+	response.Success(ctx, "用户注册成功", nil)
+
+}
+
 func GetUserInfo(ctx *gin.Context) {
 	id := ctx.Query("id")
 	result, errMsg := service.GetUserInfoById(id)

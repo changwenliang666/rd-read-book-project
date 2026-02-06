@@ -22,28 +22,7 @@ func InitUserRouter(router *gin.Engine) {
 	userRouter := router.Group("/user")
 	{
 		// 注册
-		userRouter.POST("/register", func(ctx *gin.Context) {
-			var user model.User
-			if err := ctx.ShouldBindJSON(&user); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"code":    400,
-					"message": "参数传递错误",
-				})
-				return
-			}
-			if err := config.DB.Create(&user).Error; err != nil {
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"code":    500,
-					"message": "注册用户失败",
-				})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"code": 200,
-				"msg":  "success",
-			})
-
-		})
+		userRouter.POST("/register", controller.Register)
 		// 登录
 		userRouter.POST("/login", func(ctx *gin.Context) {
 			var user struct {
