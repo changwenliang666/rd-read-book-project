@@ -40,7 +40,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		}
 
 		// ⭐ 把用户信息放进 Context
-		c.Set("user_id", claims.UserID)
+		c.Set("user_id", claims.Password)
 		c.Set("username", claims.Username)
 		c.Next()
 	}

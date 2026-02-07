@@ -13,7 +13,8 @@ func InitRouter() *gin.Engine {
 	router := gin.Default() // 初始化路由
 	// 接口使用中间件 cors jwt
 	router.Use(middleware.CorsMiddleware())
-	
+
+	InitLoginRouter(router)
 	InitPingRouter(router) // ping 接口
 	InitUserRouter(router) // user 接口
 

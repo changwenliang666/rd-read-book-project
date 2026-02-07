@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"rd-read-book-project/internal/service"
 	"rd-read-book-project/pkg/response"
 	"strconv"
@@ -21,14 +22,14 @@ func Register(ctx *gin.Context) {
 	}
 
 	if len(user.Password) < 8 || len(user.Password) > 100 {
-		response.Fail(ctx, "用户名过长", nil)
+		response.Fail(ctx, "密码长度需要介于8 ~ 100 之间", nil)
 		return
 	}
 
 	err := service.Register(&user)
 
 	if err != nil {
-		response.Fail(ctx, "用户注册失败", nil)
+		response.Fail(ctx, err.Error(), nil)
 		return
 	}
 
@@ -38,9 +39,9 @@ func Register(ctx *gin.Context) {
 
 func GetUserInfo(ctx *gin.Context) {
 	id := ctx.Query("id")
-	result, errMsg := service.GetUserInfoById(id)
-	if errMsg != "" {
-		response.Fail(ctx, errMsg, nil)
+	result, err := service.GetUserInfoById(id)
+	if err != nil {
+		response.Fail(ctx, err.Error(), nil)
 		return
 	}
 	response.Success(ctx, "查询成功", result)
@@ -58,17 +59,17 @@ func UpdateUserName(ctx *gin.Context) {
 		response.Fail(ctx, "id无效", nil)
 		return
 	}
-	if err := ctx.ShouldBindJSON(&userInputJson); err != nil {
+
+	if err2 := ctx.ShouldBindJSON(&userInputJson); err2 != nil {
 		response.Fail(ctx, "参数错误", nil)
 		return
 	}
+	fmt.Printf("inputInfo --- %d %v", userInputId, userInputJson.Username)
+	serviceError := service.UpdateUserName(userInputId, userInputJson)
 
-	result, err := service.UpdateUserName(userInputId, userInputJson)
-
-	if err != nil {
-		response.Fail(ctx, result, nil)
+	if serviceError != nil {
+		response.Fail(ctx, serviceError.Error(), nil)
 		return
 	}
-	response.Success(ctx, result, nil)
-
+	response.Success(ctx, "用户名更新成功", nil)
 }

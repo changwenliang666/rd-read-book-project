@@ -5,10 +5,9 @@ import (
 	"net/http"
 	"rd-read-book-project/config"
 	"rd-read-book-project/internal/controller"
+	"rd-read-book-project/internal/middleware"
 	"rd-read-book-project/model"
 	"strconv"
-
-	jwtUtil "rd-read-book-project/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,45 +19,16 @@ type User struct {
 
 func InitUserRouter(router *gin.Engine) {
 	userRouter := router.Group("/user")
+	userRouter.Use(middleware.JWTAuthMiddleware())
 	{
-		// 注册
-		userRouter.POST("/register", controller.Register)
-		// 登录
-		userRouter.POST("/login", func(ctx *gin.Context) {
-			var user struct {
-				Username string `json:"username" binding:"required"`
-				UserId   uint   `json:"userId" binding:"required"`
-			}
-
-			if err := ctx.ShouldBindJSON(&user); err != nil {
-				ctx.JSON(400, gin.H{
-					"message": err.Error(),
-				})
-				return
-			}
-
-			token, err := jwtUtil.GenerateToken(user.UserId, user.Username)
-			if err != nil {
-				ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-					"code":    http.StatusUnauthorized,
-					"message": "用户信息认证失败",
-				})
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"code":  200,
-				"token": token,
-			})
-		})
-
 		//根据用户id 查询用户
 		userRouter.GET("/getUserInfo", controller.GetUserInfo)
 
 		// 根据用户id 更新用户名
 		userRouter.PATCH("/updateUserName/:id", controller.UpdateUserName)
 
-		// 根据用户id 更新用户信息
-		userRouter.PATCH("/updateUserInfo/:id", controller.UpdateUserName)
+		//// 根据用户id 更新用户信息
+		//userRouter.PATCH("/updateUserInfo/:id", controller.UpdateUserName)
 
 		// 根据用户id 删除用户
 		userRouter.DELETE("/deleteUser/:id", func(ctx *gin.Context) {

@@ -7,18 +7,18 @@ import (
 )
 
 type CustomClaims struct {
-	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
+	Password string `json:"password"`
 	jwt.RegisteredClaims
 }
 
 var secretKey = []byte("go-demo")
 
 // 生成token
-func GenerateToken(userID uint, username string) (string, error) {
+func GenerateToken(username string, password string) (string, error) {
 	claims := CustomClaims{
-		UserID:   userID,
 		Username: username,
+		Password: password,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
