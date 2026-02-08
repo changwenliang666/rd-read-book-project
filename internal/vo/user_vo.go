@@ -4,4 +4,5 @@ package vo
 type UserInfoVo struct {
 	Id       int    `json:"id"`
 	Username string `json:"username"`
+	Token    string `json:"token"`
 }
