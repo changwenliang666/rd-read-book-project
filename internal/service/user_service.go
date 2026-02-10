@@ -46,7 +46,7 @@ func Register(userInfo *UserRegisterJson) error {
 	return nil
 }
 
-func GetUserInfoById(userId string) (any, error) {
+func GetUserInfoById(userId int) (any, error) {
 	var user model.User
 	res := config.DB.Model(model.User{}).Where("id=?", userId).First(&user)
 	if errors.Is(res.Error, gorm.ErrRecordNotFound) {
@@ -59,7 +59,7 @@ func GetUserInfoById(userId string) (any, error) {
 
 	userInfoVo := vo.UserInfoVo{
 		Id:       user.Id,
-		Username: user.Username,
+		UserName: user.Username,
 	}
 
 	return userInfoVo, nil

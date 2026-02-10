@@ -8,17 +8,17 @@ import (
 
 type CustomClaims struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Id       int    `json:"id"`
 	jwt.RegisteredClaims
 }
 
 var secretKey = []byte("go-demo")
 
 // 生成token
-func GenerateToken(username string, password string) (string, error) {
+func GenerateToken(userId int, username string) (string, error) {
 	claims := CustomClaims{
+		Id:       userId,
 		Username: username,
-		Password: password,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(2 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -46,6 +46,5 @@ func ParseToken(tokenStr string) (*CustomClaims, error) {
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		return claims, nil
 	}
-
 	return nil, jwt.ErrTokenInvalidClaims
 }

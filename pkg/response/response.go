@@ -13,7 +13,18 @@ type Response struct {
 }
 
 var successCode = 0
-var failCode = -1
+
+type ErrorCode struct {
+	ParamsCode int // 参数不合法
+	VerifCode  int // 身份校验失败
+	BaseCode   int // 其他
+}
+
+var ResponseErrorCode = ErrorCode{
+	ParamsCode: 400,
+	VerifCode:  401,
+	BaseCode:   -100,
+}
 
 func Success(ctx *gin.Context, msg string, data any) {
 	ctx.JSON(http.StatusOK, Response{
@@ -23,10 +34,11 @@ func Success(ctx *gin.Context, msg string, data any) {
 	})
 }
 
-func Fail(ctx *gin.Context, msg string, data any) {
+func Fail(ctx *gin.Context, code int, msg string, data any) {
 	ctx.JSON(http.StatusOK, Response{
-		Code:    failCode,
+		Code:    code,
 		Message: msg,
 		Data:    data,
 	})
+	ctx.Abort()
 }
