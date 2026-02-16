@@ -17,6 +17,7 @@ func InitRouter() *gin.Engine {
 	InitLoginRouter(router)
 	InitPingRouter(router) // ping 接口
 	InitUserRouter(router) // user 接口
+	InitBookRouter(router) // book 接口
 
 	router.Run(":3000")
 	return router
