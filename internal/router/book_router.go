@@ -12,6 +12,7 @@ func InitBookRouter(router *gin.Engine) {
 	bookRouter.Use(middleware.JWTAuthMiddleware())
 	{
 		bookRouter.GET("get-book-list", controller.GetBookList)
+		bookRouter.POST("create-book", controller.CreateBook)
 	}
 
 }

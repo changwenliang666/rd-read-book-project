@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"io"
-	"net/http"
 	"path/filepath"
 	"strings"
 
@@ -17,41 +16,41 @@ const (
 	sshIp    = "182.92.1.221:22"
 )
 
-func UploadFile(c *gin.Context) {
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 10<<20)
-	// 获取表单文件
-	file, err := c.FormFile("file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "获取文件失败"})
-		return
-	}
-
-	// 安全处理文件名
-	filename := filepath.Base(file.Filename)
-
-	// 校验文件类型
-	ext := strings.ToLower(filepath.Ext(filename))
-	if ext != ".jpg" && ext != ".png" && ext != ".webp" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "不支持的文件类型"})
-		return
-	}
-
-	// 保存文件到服务器指定目录
-	saveDir := "" // 你的服务器目录
-	savePath := filepath.Join(saveDir, filename)
-
-	fmt.Printf("savePath: %s\n", savePath)
-
-	if err := c.SaveUploadedFile(file, savePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存文件失败"})
-		return
-	}
-
-	// 返回文件路径（前端可以拼公网访问 URL）
-	c.JSON(http.StatusOK, gin.H{
-		"path": savePath,
-	})
-}
+//func UploadFile(c *gin.Context) {
+//	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 10<<20)
+//	// 获取表单文件
+//	file, err := c.FormFile("file")
+//	if err != nil {
+//		c.JSON(http.StatusBadRequest, gin.H{"error": "获取文件失败"})
+//		return
+//	}
+//
+//	// 安全处理文件名
+//	filename := filepath.Base(file.Filename)
+//
+//	// 校验文件类型
+//	ext := strings.ToLower(filepath.Ext(filename))
+//	if ext != ".jpg" && ext != ".png" && ext != ".webp" {
+//		c.JSON(http.StatusBadRequest, gin.H{"error": "不支持的文件类型"})
+//		return
+//	}
+//
+//	// 保存文件到服务器指定目录
+//	saveDir := "" // 你的服务器目录
+//	savePath := filepath.Join(saveDir, filename)
+//
+//	fmt.Printf("savePath: %s\n", savePath)
+//
+//	if err := c.SaveUploadedFile(file, savePath); err != nil {
+//		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存文件失败"})
+//		return
+//	}
+//
+//	// 返回文件路径（前端可以拼公网访问 URL）
+//	c.JSON(http.StatusOK, gin.H{
+//		"path": savePath,
+//	})
+//}
 
 type SftpResonse struct {
 	Data      []byte `json:"data"`
@@ -78,7 +77,6 @@ func UploadFileSFTP(ctx *gin.Context) (SftpResonse, error) {
 	}
 
 	defer srcFile.Close()
-
 	// SSH 客户端配置
 	config := &ssh.ClientConfig{
 		User: "root",
@@ -99,6 +97,9 @@ func UploadFileSFTP(ctx *gin.Context) (SftpResonse, error) {
 	dstFile, _ := sftpClient.Create(remotePath)
 	defer dstFile.Close()
 
-	io.Copy(dstFile, srcFile)
+	_, copyErr := io.Copy(dstFile, srcFile)
+	if copyErr != nil {
+		return SftpResonse{}, fmt.Errorf("拷贝文件失败 %w", err)
+	}
 	return SftpResonse{data, remotePath}, nil
 }
