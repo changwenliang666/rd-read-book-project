@@ -22,7 +22,7 @@ func InitUserRouter(router *gin.Engine) {
 	userRouter.Use(middleware.JWTAuthMiddleware())
 	{
 		//根据用户id 查询用户
-		userRouter.GET("/getUserInfoPro", controller.GetUserInfo)
+		userRouter.GET("/get-user-info-pro", controller.GetUserInfo)
 
 		// 根据用户id 更新用户名
 		userRouter.PATCH("/updateUserName/:id", controller.UpdateUserName)

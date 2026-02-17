@@ -7,11 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitBookRouter(router *gin.Engine) {
-	bookRouter := router.Group("/book")
+func InitUploadRouter(router *gin.Engine) {
+	bookRouter := router.Group("/upload")
 	bookRouter.Use(middleware.JWTAuthMiddleware())
 	{
-		bookRouter.GET("get-book-list", controller.GetBookList)
+		bookRouter.POST("upload-file", controller.CreateBook)
 	}
-
 }
