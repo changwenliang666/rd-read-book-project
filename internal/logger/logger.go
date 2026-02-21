@@ -19,8 +19,8 @@ func InitLogger() {
 	infoWriter := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "./logs/info.log",
 		MaxSize:    10,
-		MaxBackups: 5,
-		MaxAge:     7,
+		MaxBackups: 15,
+		MaxAge:     90,
 		Compress:   true,
 	})
 
@@ -28,8 +28,8 @@ func InitLogger() {
 	errorWriter := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "./logs/error.log",
 		MaxSize:    10,
-		MaxBackups: 5,
-		MaxAge:     7,
+		MaxBackups: 15,
+		MaxAge:     90,
 		Compress:   true,
 	})
 
