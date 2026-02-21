@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"rd-read-book-project/internal/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,7 +16,6 @@ func InitDB() {
 	host := "127.0.0.1"
 	port := 3306
 	dbname := "db_read_book"
-
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		username,
@@ -27,6 +27,7 @@ func InitDB() {
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
+		logger.Error("数据库连接失败", err)
 		panic("数据库连接失败: " + err.Error())
 	}
 
